@@ -172,7 +172,7 @@ elif st.session_state.page_selection == "eda":
 
     col = st.columns((1.5, 4.5, 2), gap='medium')
 
-    sns.barplot(data=pivot_cluster, x="Income", y="TotalSales", hue="Product", palette="viridis")
+   
 
     with col[0]:
         st.markdown('#### Graphs Column 1')
@@ -180,7 +180,7 @@ elif st.session_state.page_selection == "eda":
 
     with col[1]:
         st.markdown('#### Graphs Column 2')
-        
+        sns.barplot(data=pivot_cluster, x="Income", y="TotalSales", hue="Product", palette="viridis")
     with col[2]:
         st.markdown('#### Graphs Column 3')
 
