@@ -176,6 +176,17 @@ elif st.session_state.page_selection == "eda":
 
     with col[0]:
         st.markdown('#### Graphs Column 1')
+        prodsales_pd = pd.DataFrame({
+        'MntWines': [clean_pd['MntWines'].sum()],
+        'MntFruits': [clean_pd['MntFruits'].sum()],
+        'MntMeatProducts': [clean_pd['MntMeatProducts'].sum()],
+        'MntFishProducts': [clean_pd['MntFishProducts'].sum()],
+        'MntSweetProducts': [clean_pd['MntSweetProducts'].sum()],
+        'MntGoldProds': [clean_pd['MntGoldProds'].sum()]
+        })
+
+        prodsales_pivot = prodsales_pd.melt(var_name="Product", value_name="TotalSales")
+        display(prodsales_pivot)
         plt.figure(figsize=(10, 6))
         sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
 
