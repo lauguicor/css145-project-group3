@@ -178,6 +178,13 @@ elif st.session_state.page_selection == "eda":
 
     with col[0]:
         st.markdown('#### Graphs Column 1')
+        clean_pd = st.session_state.get('clean_pd', None)
+        heatmap_pd = clean_pd[['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']]
+        correlation_matrix = heatmap_pd.corr()
+
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
+        plt.title("Correlation on Income vs Product Spending")
         
     with col[1]:
         st.markdown('#### Graphs Column 2')
@@ -200,6 +207,7 @@ elif st.session_state.page_selection == "eda":
        
     with col[2]:
         st.markdown('#### Graphs Column 3')
+        clean_pd = st.session_state.get('clean_pd', None)
        
 # Machine Learning Page
 elif st.session_state.page_selection == "machine_learning":
