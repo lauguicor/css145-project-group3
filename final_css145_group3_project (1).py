@@ -43,6 +43,8 @@ from sklearn.ensemble import RandomForestRegressor
 !pip install scikit-learn
 
 import opendatasets as od
+import streamlit as st
+
 
 od.download("https://www.kaggle.com/datasets/imakash3011/customer-personality-analysis")
 
@@ -106,7 +108,7 @@ prodsales_pd = pd.DataFrame({
 })
 
 prodsales_pivot = prodsales_pd.melt(var_name="Product", value_name="TotalSales")
-display(prodsales_pivot)
+st.bar_chart(prodsales_pivot.set_index('Product')['TotalSales'])
 
 # Plot using Seaborn barplot
 plt.figure(figsize=(10, 6))
