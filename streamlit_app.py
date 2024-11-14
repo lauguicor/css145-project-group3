@@ -176,6 +176,7 @@ elif st.session_state.page_selection == "eda":
 
     with col[0]:
         st.markdown('#### Graphs Column 1')
+        clean_pd['MntWines'] = pd.to_numeric(clean_pd['MntWines'], errors='coerce')
         prodsales_pd = pd.DataFrame({
         'MntWines': [clean_pd['MntWines'].sum()],
         'MntFruits': [clean_pd['MntFruits'].sum()],
