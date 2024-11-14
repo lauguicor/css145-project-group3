@@ -178,6 +178,18 @@ elif st.session_state.page_selection == "eda":
 
     with col[0]:
         st.markdown('#### Graphs Column 1')
+        # clean_pd = st.session_state.get('clean_pd', None)
+        
+        # heatmap_pd = clean_pd[['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']]
+        
+        # correlation_matrix = heatmap_pd.corr()
+
+        # plt.figure(figsize=(12, 8))
+        # sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
+        # plt.title("Correlation on Income vs Product Spending")
+        
+    with col[1]:
+        st.markdown('#### Graphs Column 2')
         clean_pd = st.session_state.get('clean_pd', None)
         prodsales_pd = pd.DataFrame({
             'MntWines': [clean_pd['MntWines'].sum()],
@@ -194,18 +206,6 @@ elif st.session_state.page_selection == "eda":
         plt.figure(figsize=(10, 6))
         sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
         st.pyplot()
-        # clean_pd = st.session_state.get('clean_pd', None)
-        
-        # heatmap_pd = clean_pd[['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']]
-        
-        # correlation_matrix = heatmap_pd.corr()
-
-        # plt.figure(figsize=(12, 8))
-        # sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
-        # plt.title("Correlation on Income vs Product Spending")
-        
-    with col[1]:
-        st.markdown('#### Graphs Column 2')
 
        
     with col[2]:
