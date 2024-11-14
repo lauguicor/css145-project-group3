@@ -176,18 +176,15 @@ elif st.session_state.page_selection == "eda":
 
     with col[0]:
         st.markdown('#### Graphs Column 1')
-        clean_pd['Education'] = clean_pd['Education'].astype('category')
-        sns.countplot(data=clean_pd, x="Education", palette="Set2")
-        st.pyplot()
+        plt.figure(figsize=(10, 6))
+        sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
 
     with col[1]:
         st.markdown('#### Graphs Column 2')
-        sns.barplot(data=clean_pd, x="Income", y="MntWines", hue="Education", palette="viridis")
-        st.pyplot()
+       
     with col[2]:
         st.markdown('#### Graphs Column 3')
-        sns.scatterplot(data=clean_pd, x="Income", y="MntMeatProducts", hue="Marital_Status", palette="Set1")
-        st.pyplot()
+       
 # Machine Learning Page
 elif st.session_state.page_selection == "machine_learning":
     st.header("🤖 Machine Learning")
