@@ -172,7 +172,7 @@ elif st.session_state.page_selection == "eda":
 
     col = st.columns((1.5, 4.5, 2), gap='medium')
 
-    # Your content for the EDA page goes here
+    sns.barplot(data=pivot_cluster, x="Income", y="TotalSales", hue="Product", palette="viridis")
 
     with col[0]:
         st.markdown('#### Graphs Column 1')
