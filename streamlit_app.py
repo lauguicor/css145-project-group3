@@ -52,11 +52,11 @@ with st.sidebar:
     if st.button("Dataset", use_container_width=True, on_click=set_page_selection, args=('dataset',)):
         st.session_state.page_selection = 'dataset'
 
-    if st.button("EDA", use_container_width=True, on_click=set_page_selection, args=('eda',)):
-        st.session_state.page_selection = "eda"
-
     if st.button("Data Cleaning / Pre-processing", use_container_width=True, on_click=set_page_selection, args=('data_cleaning',)):
         st.session_state.page_selection = "data_cleaning"
+
+    if st.button("EDA", use_container_width=True, on_click=set_page_selection, args=('eda',)):
+        st.session_state.page_selection = "eda"
 
     if st.button("Machine Learning", use_container_width=True, on_click=set_page_selection, args=('machine_learning',)): 
         st.session_state.page_selection = "machine_learning"
@@ -106,30 +106,9 @@ if st.session_state.page_selection == "about":
 # Dataset Page
 elif st.session_state.page_selection == "dataset":
     st.header("📊 Dataset")
-
-    st.write("Dataset")
     st.write(dataset_df)
 
     # Your content for your DATASET page goes here
-
-# EDA Page
-elif st.session_state.page_selection == "eda":
-    st.header("📈 Exploratory Data Analysis (EDA)")
-
-
-    col = st.columns((1.5, 4.5, 2), gap='medium')
-
-    # Your content for the EDA page goes here
-
-    with col[0]:
-        st.markdown('#### Graphs Column 1')
-
-
-    with col[1]:
-        st.markdown('#### Graphs Column 2')
-        
-    with col[2]:
-        st.markdown('#### Graphs Column 3')
 
 # Data Cleaning Page
 elif st.session_state.page_selection == "data_cleaning":
@@ -185,6 +164,25 @@ elif st.session_state.page_selection == "data_cleaning":
     # Display data types of columns
     st.write("### Data Types After Casting")
     st.write(clean_pd.dtypes)
+
+# EDA Page
+elif st.session_state.page_selection == "eda":
+    st.header("📈 Exploratory Data Analysis (EDA)")
+
+
+    col = st.columns((1.5, 4.5, 2), gap='medium')
+
+    # Your content for the EDA page goes here
+
+    with col[0]:
+        st.markdown('#### Graphs Column 1')
+
+
+    with col[1]:
+        st.markdown('#### Graphs Column 2')
+        
+    with col[2]:
+        st.markdown('#### Graphs Column 3')
 
 # Machine Learning Page
 elif st.session_state.page_selection == "machine_learning":
