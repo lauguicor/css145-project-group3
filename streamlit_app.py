@@ -176,6 +176,7 @@ elif st.session_state.page_selection == "eda":
 
     with col[0]:
         st.markdown('#### Graphs Column 1')
+        clean_pd['Education'] = clean_pd['Education'].astype('category')
         sns.countplot(data=clean_pd, x="Education", palette="Set2")
         st.pyplot()
 
