@@ -171,15 +171,12 @@ elif st.session_state.page_selection == "data_cleaning":
 elif st.session_state.page_selection == "eda":
     st.header("📈 Exploratory Data Analysis (EDA)")
 
-    col = st.columns((1.5, 4.5, 2), gap='medium')
     clean_pd = st.session_state.get('clean_pd', None)
     
-    # Check if clean_pd exists before proceeding
     if clean_pd is not None:
-        with col[0]:
             st.markdown('#### Correlation Heatmap')
 
-            # Check if necessary columns are present before plotting
+           
             required_columns = ['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
             if all(col in clean_pd.columns for col in required_columns):
                 heatmap_pd = clean_pd[required_columns]
@@ -192,10 +189,9 @@ elif st.session_state.page_selection == "eda":
             else:
                 st.warning("Required columns for correlation heatmap are missing!")
 
-        with col[1]:
             st.markdown('#### Total Product Sales')
 
-            # Check if necessary columns are present for total sales
+            
             sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
             if all(col in clean_pd.columns for col in sales_columns):
                 prodsales_pd = pd.DataFrame({
@@ -217,7 +213,6 @@ elif st.session_state.page_selection == "eda":
                 st.warning("Missing product sales data for total sales bar chart!")
 
        
-    with col[2]:
         st.markdown('#### Graphs Column 3')
         clean_pd = st.session_state.get('clean_pd', None)
        
