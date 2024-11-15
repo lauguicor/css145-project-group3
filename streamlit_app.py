@@ -456,6 +456,41 @@ elif st.session_state.page_selection == "prediction":
         plt.title('Overall Feature Importance')
         st.pyplot(plt)
 
+        X_test['Marital_Status'] = X_test[ ['Marital_Status_YOLO', 'Marital_Status_Together', 'Marital_Status_Married', 'Marital_Status_Widow', 'Marital_Status_Divorced', 'Marital_Status_Alone', 'Marital_Status_Single']].idxmax(axis=1).str.replace('Marital_Status_', '')
+        X_test['Education'] = X_test[['Education_PhD', 'Education_Master', 'Education_Graduation', 'Education_Basic']].idxmax(axis=1).str.replace('Education_', '')
+        X_test = X_test.drop(['Marital_Status_YOLO', 'Marital_Status_Together', 'Marital_Status_Married', 'Marital_Status_Widow', 'Marital_Status_Divorced', 'Marital_Status_Alone', 'Marital_Status_Single', 'Education_PhD', 'Education_Master', 'Education_Graduation', 'Education_Basic'], axis=1)
+
+        target_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+        mae_list = []
+        mae_per_column = []
+        results_list = []
+
+        for i in range(len(y_test)):
+            data_point_result = {'Data_Point': i + 1}
+            data_point_result.update(X_test.iloc[i].to_dict())
+
+            for j, col in enumerate(target_columns):
+                actual = y_test.iloc[i, j]
+                predicted = y_pred[i, j]
+
+                absolute_error = __builtins__.abs(actual - predicted)
+                mae_list.append(absolute_error)
+                
+                data_point_result[f"{col}_Actual"] = actual
+                data_point_result[f"{col}_Predicted"] = predicted
+                data_point_result[f"{col}_Absolute_Error"] = absolute_error
+
+            results_list.append(data_point_result)
+        results_df = pd.DataFrame(results_list)
+
+        results_df = results_df[['Year_Birth', 'Marital_Status', 'Kidhome', 'Teenhome', 'Education', 'Income', 'Recency',
+                   'MntWines_Predicted', 'MntWines_Actual', 'MntWines_Absolute_Error',
+                   'MntFruits_Predicted', 'MntFruits_Actual', 'MntFruits_Absolute_Error',
+                   'MntMeatProducts_Predicted', 'MntMeatProducts_Actual', 'MntMeatProducts_Absolute_Error',
+                   'MntFishProducts_Predicted', 'MntFishProducts_Actual', 'MntFishProducts_Absolute_Error',
+                   'MntSweetProducts_Predicted', 'MntSweetProducts_Actual', 'MntSweetProducts_Absolute_Error',
+                   'MntGoldProds_Predicted', 'MntGoldProds_Actual', 'MntGoldProds_Absolute_Error']]
+        display(results_df)
 # Conclusions Page
 elif st.session_state.page_selection == "conclusion":
     st.header("📝 Conclusion")
