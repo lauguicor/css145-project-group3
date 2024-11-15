@@ -410,7 +410,7 @@ elif st.session_state.page_selection == "machine_learning":
     else:
         st.error("K-means cannot run because the data is missing. Please check the data cleaning page.")
 
-# Predictions Page
+# Prediction Page
 elif st.session_state.page_selection == "prediction":
     st.header("👀 Prediction")
 
@@ -557,14 +557,36 @@ elif st.session_state.page_selection == "prediction":
         plt.ylabel("Predicted Values")
         st.pyplot()
 
-        # Mean Absolute Error for each target variable
-        mae_values = {col: mean_absolute_error(y_test[col], y_pred[:, i]) for i, col in enumerate(target_columns)}
-        mae_values["Overall MAE"] = sum(mae_values.values()) / len(mae_values)
+        # Correlation heatmap for actual values
+        feature_columns = ['Income']
+        target_columns = ['MntWines_Actual', 'MntFruits_Actual', 'MntMeatProducts_Actual', 'MntFishProducts_Actual', 'MntSweetProducts_Actual', 'MntGoldProds_Actual']
 
-        mae_df = pd.DataFrame(list(mae_values.items()), columns=["Category", "MAE"])
-        st.subheader("Mean Absolute Error for Each Target Variable")
-        st.write(mae_df)
+        correlation_matrix = results_df[feature_columns + target_columns].corr()
 
+        st.subheader("Correlation Heatmap (Actual Values)")
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
+        plt.title("Correlation Heatmap for Actual Values")
+        st.pyplot()
+
+        # Correlation heatmap for predicted values
+        target_columns = ['MntWines_Predicted', 'MntFruits_Predicted', 'MntMeatProducts_Predicted', 'MntFishProducts_Predicted', 'MntSweetProducts_Predicted', 'MntGoldProds_Predicted']
+
+        correlation_matrix = results_df[feature_columns + target_columns].corr()
+
+        st.subheader("Correlation Heatmap (Predicted Values)")
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
+        plt.title("Correlation Heatmap for Predicted Values")
+        st.pyplot()
+
+        # Mean Absolute Error (MAE) table
+        mae_table = pd.DataFrame(mae_list, columns=["Absolute_Error"])
+        mae_table["Mean_Absolute_Error"] = mae_table["Absolute_Error"].mean()
+
+        st.subheader("Mean Absolute Error (MAE)")
+        st.write(mae_table)
+        
     else:
         st.error("Data is missing, cannot run prediction.")
 
