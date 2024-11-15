@@ -498,4 +498,9 @@ elif st.session_state.page_selection == "prediction":
 # Conclusions Page
 elif st.session_state.page_selection == "conclusion":
     st.header("📝 Conclusion")
-    st.markdown("""This is the content area""")
+    st.markdown("""
+    The Machine Learning model uses K-means Clustering to predict the possible customer product trends. We used the People variables (it came with the dataset), to create the Machine Learning prediction results.
+    The data was thoroughly cleaned from any null variables that may cause biased predictions towards certain demographics. Upon cleaning the group noticed variables that had a small sample, which could be turned into biased predictions.
+    The Exploratory Data Analysis (EDA) use heatmaps and bar charts to give visualization of data for the most prominent variables.
+    
+    """)
