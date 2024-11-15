@@ -222,13 +222,126 @@ elif st.session_state.page_selection == "eda":
     else:
         st.warning("Cleaned dataset (clean_pd) is not available! Please run the Data Cleaning page first.")
 
-
-
 # Machine Learning Page
 elif st.session_state.page_selection == "machine_learning":
     st.header("🤖 Machine Learning")
 
-    # Your content for the MACHINE LEARNING page goes here
+    # Ensure that clean_pd is available in the session state
+    if 'clean_pd' in st.session_state:
+        kmeans_pd = st.session_state.clean_pd  # Access it from session state
+    else:
+        st.error("Cleaned data is not available. Please run the Data Cleaning page first.")
+        kmeans_pd = None
+
+    if kmeans_pd is not None:
+        # Label Encoder since KMeans does not allow non-numeric values
+        columns_to_encode = ['Year_Birth', 'Marital_Status', 'Education', 'Dt_Customer']
+        label_encoders = {}
+
+        # Encode categorical columns
+        for col in columns_to_encode:
+            le = LabelEncoder()
+            kmeans_pd[col] = le.fit_transform(kmeans_pd[col])
+            label_encoders[col] = le  # Store the encoder for possible later use
+        
+        # Scaling for K-Means clustering
+        kmeans_df = kmeans_pd[['ID', 'Year_Birth', 'Education', 'Marital_Status', 'Dt_Customer', 'Income', 
+                               'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 
+                               'MntGoldProds']]
+        scaler = StandardScaler()
+        scaled = scaler.fit_transform(kmeans_df)
+
+        # Elbow method to determine the optimal number of clusters
+        wcss = []
+        for i in range(1, 11):
+            kmeans = KMeans(n_clusters=i, random_state=42)
+            kmeans.fit(scaled)
+            wcss.append(kmeans.inertia_)
+
+        # Plot the Elbow Method to find the optimal K (number of clusters)
+        st.subheader("Elbow Method for Optimal K")
+        plt.figure(figsize=(10, 6))
+        plt.plot(range(1, 11), wcss, marker='o')
+        plt.title('Elbow Method for Optimal K')
+        plt.xlabel('Number of Clusters')
+        plt.ylabel('WCSS')
+        plt.xticks(range(1, 11))
+        plt.grid()
+        st.pyplot()
+
+        # Using the optimal number of clusters based on the elbow method
+        optimal_k = 3  # You can modify this if a different number of clusters is chosen based on the plot
+        kmeans = KMeans(n_clusters=optimal_k, random_state=42)
+        kmeans_pd['Cluster'] = kmeans.fit_predict(scaled)
+
+        # Show cluster summary (average features per cluster)
+        cluster_summary = kmeans_pd.groupby('Cluster').mean()
+        st.subheader("Cluster Summary")
+        st.write(cluster_summary)
+
+        # Visualize the clusters in a bar chart showing average spending per product by cluster
+        pivot_cluster = cluster_summary.melt(id_vars="Income",
+                                             value_vars=['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 
+                                                         'MntSweetProducts', 'MntGoldProds'],
+                                             var_name="Product", value_name="TotalSales")
+        st.subheader("Cluster Summary Showing Income and Product Spending")
+        plt.figure(figsize=(12, 6))
+        sns.barplot(data=pivot_cluster, x="Income", y="TotalSales", hue="Product", palette="viridis")
+        plt.title("Cluster Summary Showing Income and Product Spending")
+        plt.xlabel("Cluster Mean Income")
+        plt.ylabel("Average Spending")
+        plt.legend(title="Product")
+        st.pyplot()
+
+        # Model training: Random Forest Regressor to predict spending on products
+        classify_pd = kmeans_pd[['Year_Birth', 'Marital_Status', 'Kidhome', 'Teenhome', 'Education', 'Income', 
+                                 'Recency', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 
+                                 'MntSweetProducts', 'MntGoldProds']]
+        classify_pd = pd.get_dummies(classify_pd, columns=['Marital_Status', 'Education'], drop_first=True)
+        
+        # Split the dataset into features and target
+        X = classify_pd.drop(['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds'], axis=1)
+        y = classify_pd[['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']]
+
+        # Train-test split
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+        # Train Random Forest Regressor
+        model = RandomForestRegressor(random_state=42)
+        model.fit(X_train, y_train)
+
+        # Make predictions
+        y_pred = model.predict(X_test)
+
+        # Display feature importances
+        feature_importances = {}
+        individual_feature_importance_list = []
+        overall_feature_importances = {feature: 0 for feature in X.columns}
+        
+        # Calculate feature importance for each target
+        for i, target in enumerate(y.columns):
+            importances = model.estimators_[i].feature_importances_
+            feature_importances[target] = dict(zip(X.columns, importances))
+            for feature, importance in zip(X.columns, importances):
+                overall_feature_importances[feature] += importance
+        
+        # Average feature importance
+        num_targets = len(y.columns)
+        for feature in overall_feature_importances:
+            overall_feature_importances[feature] /= num_targets
+
+        # Visualize the overall feature importance
+        st.subheader("Overall Feature Importance")
+        importance_df = pd.DataFrame(overall_feature_importances.items(), columns=['Feature', 'Importance'])
+        importance_df = importance_df.sort_values(by='Importance', ascending=False)
+
+        plt.figure(figsize=(10, 6))
+        sns.barplot(data=importance_df, x='Importance', y='Feature', palette='viridis')
+        plt.title('Overall Feature Importance')
+        st.pyplot()
+
+    else:
+        st.error("K-means cannot run because the data is missing. Please check the data cleaning page.")
 
 # Prediction Page
 elif st.session_state.page_selection == "prediction":
