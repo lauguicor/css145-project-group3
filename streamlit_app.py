@@ -119,41 +119,41 @@ elif st.session_state.page_selection == "data_cleaning":
     st.write("### Rows with Null Values")
     null_df = dataset_df[dataset_df.isnull().any(axis=1)]
     st.dataframe(null_df)
-    
+
     # Display total rows and null rows
     st.write("### Dataset Summary")
     st.write("Total Rows:", len(dataset_df))
     st.write("Total Null Rows:", len(null_df))
-    
+
     # Drop all rows with null values
     clean_pd = dataset_df.dropna()
     st.write("### Cleaned Dataset")
     st.dataframe(clean_pd)
-    
+
     # Display counts after cleaning
     st.write("Total Not Null Rows:", len(clean_pd))
-    
+
     # Cast columns to proper data types and display
     st.write("### Dataset with Corrected Data Types")
-    clean_pd.loc[:, 'ID'] = clean_pd['ID'].astype('int64')
-    clean_pd.loc[:, 'Year_Birth'] = pd.to_datetime(clean_pd['Year_Birth'], format='%Y').dt.year
-    clean_pd.loc[:, 'Income'] = clean_pd['Income'].astype('float64')
-    clean_pd.loc[:, 'Kidhome'] = clean_pd['Kidhome'].astype('int32')
-    clean_pd.loc[:, 'Teenhome'] = clean_pd['Teenhome'].astype('int32')
-    clean_pd.loc[:, 'Dt_Customer'] = pd.to_datetime(clean_pd['Dt_Customer'], format='%d-%m-%Y').dt.date
-    clean_pd.loc[:, 'Recency'] = clean_pd['Recency'].astype('int32')
-    clean_pd.loc[:, 'MntWines'] = clean_pd['MntWines'].astype('float64')
-    clean_pd.loc[:, 'MntFruits'] = clean_pd['MntFruits'].astype('float64')
-    clean_pd.loc[:, 'MntMeatProducts'] = clean_pd['MntMeatProducts'].astype('float64')
-    clean_pd.loc[:, 'MntFishProducts'] = clean_pd['MntFishProducts'].astype('float64')
-    clean_pd.loc[:, 'MntSweetProducts'] = clean_pd['MntSweetProducts'].astype('float64')
-    clean_pd.loc[:, 'MntGoldProds'] = clean_pd['MntGoldProds'].astype('float64')
-    clean_pd.loc[:, 'NumDealsPurchases'] = clean_pd['NumDealsPurchases'].astype('int32')
-    clean_pd.loc[:, 'NumWebPurchases'] = clean_pd['NumWebPurchases'].astype('int32')
-    clean_pd.loc[:, 'NumCatalogPurchases'] = clean_pd['NumCatalogPurchases'].astype('int32')
-    clean_pd.loc[:, 'NumStorePurchases'] = clean_pd['NumStorePurchases'].astype('int32')
-    clean_pd.loc[:, 'NumWebVisitsMonth'] = clean_pd['NumWebVisitsMonth'].astype('int32')
-    
+    clean_pd['ID'] = clean_pd['ID'].astype('int64')
+    clean_pd['Year_Birth'] = pd.to_datetime(clean_pd['Year_Birth'], format='%Y').dt.year
+    clean_pd['Income'] = clean_pd['Income'].astype('float64')
+    clean_pd['Kidhome'] = clean_pd['Kidhome'].astype('int32')
+    clean_pd['Teenhome'] = clean_pd['Teenhome'].astype('int32')
+    clean_pd['Dt_Customer'] = pd.to_datetime(clean_pd['Dt_Customer'], format='%d-%m-%Y').dt.date
+    clean_pd['Recency'] = clean_pd['Recency'].astype('int32')
+    clean_pd['MntWines'] = clean_pd['MntWines'].astype('float64')
+    clean_pd['MntFruits'] = clean_pd['MntFruits'].astype('float64')
+    clean_pd['MntMeatProducts'] = clean_pd['MntMeatProducts'].astype('float64')
+    clean_pd['MntFishProducts'] = clean_pd['MntFishProducts'].astype('float64')
+    clean_pd['MntSweetProducts'] = clean_pd['MntSweetProducts'].astype('float64')
+    clean_pd['MntGoldProds'] = clean_pd['MntGoldProds'].astype('float64')
+    clean_pd['NumDealsPurchases'] = clean_pd['NumDealsPurchases'].astype('int32')
+    clean_pd['NumWebPurchases'] = clean_pd['NumWebPurchases'].astype('int32')
+    clean_pd['NumCatalogPurchases'] = clean_pd['NumCatalogPurchases'].astype('int32')
+    clean_pd['NumStorePurchases'] = clean_pd['NumStorePurchases'].astype('int32')
+    clean_pd['NumWebVisitsMonth'] = clean_pd['NumWebVisitsMonth'].astype('int32')
+
     # Select relevant columns
     clean_pd = clean_pd[['ID', 'Year_Birth', 'Education', 'Marital_Status', 'Income', 'Kidhome', 'Teenhome',
                          'Dt_Customer', 'Recency', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts',
@@ -161,41 +161,32 @@ elif st.session_state.page_selection == "data_cleaning":
                          'NumCatalogPurchases', 'NumStorePurchases', 'NumWebVisitsMonth']]
     st.dataframe(clean_pd)
 
-    
-    
-    # Display data types of columns
-    st.write("### Data Types After Casting")
-    st.write(clean_pd.dtypes)
-    
-    st.session_state.clean_pd = clean_pd
-    
+    # Store clean_pd in st.session_state for use in other pages
+    st.session_state.clean_pd = clean_pd  # Save clean_pd in session state
+
 # EDA Page
 elif st.session_state.page_selection == "eda":
     st.header("📈 Exploratory Data Analysis (EDA)")
 
-    col = st.columns((3, 4, 3), gap='medium')
-
+    # Access clean_pd from st.session_state
     clean_pd = st.session_state.get('clean_pd')
-    
-    with col[0]:
-        if clean_pd is not None:
+
+    if clean_pd is not None:
+        # Perform EDA tasks
+        col = st.columns((3, 4, 3), gap='medium')
+
+        with col[0]:
             st.markdown('#### Correlation Heatmap')
             heatmap_pd = clean_pd[['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']]
             correlation_matrix = heatmap_pd.corr()
-
             plt.figure(figsize=(12, 8))
             sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
             plt.title("Correlation on Income vs Product Spending")
             st.pyplot()
-        else:
-            st.warning("Cleaned dataset (clean_pd) is not available!")
 
-
-    with col[1]:
-        st.markdown('#### Total Product Sales')
-        if clean_pd is not None:
+        with col[1]:
+            st.markdown('#### Total Product Sales')
             sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
-            
             if all(col in clean_pd.columns for col in sales_columns):
                 prodsales_pd = pd.DataFrame({
                     'MntWines': [clean_pd['MntWines'].sum()],
@@ -205,20 +196,13 @@ elif st.session_state.page_selection == "eda":
                     'MntSweetProducts': [clean_pd['MntSweetProducts'].sum()],
                     'MntGoldProds': [clean_pd['MntGoldProds'].sum()]
                 })
-
                 prodsales_pivot = prodsales_pd.melt(var_name="Product", value_name="TotalSales")
-
                 plt.figure(figsize=(10, 6))
                 sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
                 st.pyplot()
-            else:
-                st.warning("Some required columns for the sales visualization are missing!")
-        else:
-            st.warning("Cleaned dataset (clean_pd) is not available!")
 
-    with col[2]:
-        st.markdown('#### Total Purchases by Marital Status')
-        if clean_pd is not None:
+        with col[2]:
+            st.markdown('#### Total Purchases by Marital Status')
             marital_purchase_pd = pd.DataFrame({
                 'MntWines': clean_pd.groupby('Marital_Status')['MntWines'].sum(),
                 'MntFruits': clean_pd.groupby('Marital_Status')['MntFruits'].sum(),
@@ -227,18 +211,18 @@ elif st.session_state.page_selection == "eda":
                 'MntSweetProducts': clean_pd.groupby('Marital_Status')['MntSweetProducts'].sum(),
                 'MntGoldProds': clean_pd.groupby('Marital_Status')['MntGoldProds'].sum()
             })
-
             marital_purchase_pd['TotalSales'] = marital_purchase_pd.sum(axis=1)
             plt.figure(figsize=(10, 6))
             sns.barplot(x=marital_purchase_pd.index, y='TotalSales', data=marital_purchase_pd, palette='viridis')
-
             plt.title('Total Purchases by Marital Status')
             plt.xlabel('Marital Status')
             plt.ylabel('Total Purchases')
             plt.xticks(rotation=45)
             st.pyplot()
-        else:
-            st.warning("Cleaned dataset (clean_pd) is not available!")
+
+    else:
+        st.warning("Cleaned dataset (clean_pd) is not available! Please run the Data Cleaning page first.")
+
 
 
 # Machine Learning Page
