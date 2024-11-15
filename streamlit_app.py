@@ -643,5 +643,5 @@ elif st.session_state.page_selection == "conclusion":
     * The data was thoroughly cleaned from any null variables that may cause biased predictions toward certain demographics. Upon cleaning the group noticed variables that had a small sample, which could be turned into biased predictions.
     * Exploratory Data Analysis (EDA) uses heatmaps and bar charts for visualization of data on the most prominent variables.
     * The Machine Learning model uses K-means Clustering to predict the possible customer product trends.
-    * The Predictions had an overall prediction of 49.07%
+    * The Predictions had an overall prediction of 60%
         """)
