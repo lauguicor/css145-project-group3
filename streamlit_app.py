@@ -407,156 +407,167 @@ elif st.session_state.page_selection == "machine_learning":
         for feature in overall_feature_importances:
             overall_feature_importances[feature] /= num_targets
 
-        # Visualize the overall feature importance
-        st.subheader("Overall Feature Importance")
-        importance_df = pd.DataFrame(overall_feature_importances.items(), columns=['Feature', 'Importance'])
-        importance_df = importance_df.sort_values(by='Importance', ascending=False)
-
-        plt.figure(figsize=(10, 6))
-        sns.barplot(data=importance_df, x='Importance', y='Feature', palette='viridis')
-        plt.title('Overall Feature Importance')
-        st.pyplot()
-
     else:
         st.error("K-means cannot run because the data is missing. Please check the data cleaning page.")
 
-# Prediction Page
+# Predictions Page
 elif st.session_state.page_selection == "prediction":
     st.header("👀 Prediction")
 
     # Ensure that clean_pd is available in the session state
     if 'clean_pd' in st.session_state:
-        kmeans_pd = st.session_state.clean_pd  # Access it from session state
+        classify_pd = st.session_state.clean_pd[['Year_Birth', 'Marital_Status', 'Kidhome', 'Teenhome', 
+                                                 'Education', 'Income', 'Recency', 'MntWines', 'MntFruits', 
+                                                 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 
+                                                 'MntGoldProds']]  # Extract relevant columns
     else:
         st.error("Cleaned data is not available. Please run the Data Cleaning page first.")
-        kmeans_pd = None
+        classify_pd = None
 
-    if kmeans_pd is not None:
-        # Label Encoding for categorical columns in the dataset
-        columns_to_encode = ['Year_Birth', 'Marital_Status', 'Education', 'Dt_Customer']
-        label_encoders = {}
-
-        # Encode categorical columns
-        for col in columns_to_encode:
-            le = LabelEncoder()
-            kmeans_pd[col] = le.fit_transform(kmeans_pd[col])
-            label_encoders[col] = le  # Store the encoder for possible later use
-
-        # Scaling for K-Means clustering
-        kmeans_df = kmeans_pd[['ID', 'Year_Birth', 'Education', 'Marital_Status', 'Dt_Customer', 'Income', 
-                               'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 
-                               'MntGoldProds']]
-        scaler = StandardScaler()
-        scaled = scaler.fit_transform(kmeans_df)
-
-        # Apply KMeans clustering
-        optimal_k = 3  # Set the optimal number of clusters based on previous analysis
-        kmeans = KMeans(n_clusters=optimal_k, random_state=42)
-        kmeans_pd['Cluster'] = kmeans.fit_predict(scaled)
-
-        # Cluster summary
-        cluster_summary = kmeans_pd.groupby('Cluster').mean()
-        st.subheader("Cluster Summary")
-        st.write(cluster_summary)
-
-        # Visualizing cluster summary with average spending
-        pivot_cluster = cluster_summary.melt(id_vars="Income", 
-                                             value_vars=['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 
-                                                         'MntSweetProducts', 'MntGoldProds'],
-                                             var_name="Product", value_name="TotalSales")
-        st.subheader("Cluster Summary Showing Income and Product Spending")
-        plt.figure(figsize=(12, 6))
-        sns.barplot(data=pivot_cluster, x="Income", y="TotalSales", hue="Product", palette="viridis")
-        plt.title("Cluster Summary Showing Income and Product Spending")
-        plt.xlabel("Cluster Mean Income")
-        plt.ylabel("Average Spending")
-        plt.legend(title="Product")
-        st.pyplot()
-
-        classify_pd = kmeans_pd[['Year_Birth', 'Marital_Status', 'Kidhome', 'Teenhome', 'Education', 'Income', 'Recency', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']]
+    if classify_pd is not None:
+        # One-hot encoding for non-numerical columns (not accepted by the model)
         classify_pd = pd.get_dummies(classify_pd, columns=['Marital_Status', 'Education'], drop_first=True)
-        X = classify_pd.drop(['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds'], axis=1)
-        y = classify_pd[['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']]
 
+        # Define X as features (customer description) and y as targets (product columns)
+        X = classify_pd.drop(['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 
+                              'MntSweetProducts', 'MntGoldProds'], axis=1)
+        y = classify_pd[['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 
+                         'MntSweetProducts', 'MntGoldProds']]
+
+        # Use 30% as test data, 70% as training dataset
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+        # Initialize the model
         model = RandomForestRegressor(random_state=42)
+
+        # Train the model on the training data
         model.fit(X_train, y_train)
 
+        # Predict spending on the test set
         y_pred = model.predict(X_test)
 
+        # Determine the importance of each customer description to the products
         feature_importances = {}
         individual_feature_importance_list = []
         overall_feature_importances = {feature: 0 for feature in X.columns}
 
+        # Loop through each target model and get feature importances
         for i, target in enumerate(y.columns):
+            # Get feature importances from the individual model for each target
             importances = model.estimators_[i].feature_importances_
+
+            # Store the importances in the dictionary for each target
             feature_importances[target] = dict(zip(X.columns, importances))
+
+            # Add to the overall feature importance
             for feature, importance in zip(X.columns, importances):
                 overall_feature_importances[feature] += importance
 
+            # Append the importances to the individual list for later display
+            for feature, importance in zip(X.columns, importances):
+                individual_feature_importance_list.append({"Target": target, "Feature": feature, "Importance": importance})
+
+        # Average the feature importances by dividing by the number of targets
         num_targets = len(y.columns)
         for feature in overall_feature_importances:
             overall_feature_importances[feature] /= num_targets
 
-        for target, importances in feature_importances.items():
-            sorted_importances = sorted(importances.items(), key=lambda x: x[1], reverse=True)
-            for feature, importance in sorted_importances:
-                individual_feature_importance_list.append({"Target": target, "Feature": feature, "Importance": importance})
-
+        # Display feature importances for each target
         individual_feature_importance_df = pd.DataFrame(individual_feature_importance_list)
-        st.dataframe(individual_feature_importance_df)
+        st.subheader("Feature Importances for Each Target")
+        st.write(individual_feature_importance_df)
 
+        # For overall importances, sort and display
         sorted_overall_importances = sorted(overall_feature_importances.items(), key=lambda x: x[1], reverse=True)
         overall_feature_importance_df = pd.DataFrame(sorted_overall_importances, columns=["Feature", "Importance"])
-        st.dataframe(overall_feature_importance_df)
+        st.subheader("Overall Feature Importance")
+        st.write(overall_feature_importance_df)
 
+        # Create pie chart for overall feature importance
         threshold = 0.012
         filtered_data = overall_feature_importance_df[overall_feature_importance_df["Importance"] >= threshold]
+
         if len(overall_feature_importance_df[overall_feature_importance_df["Importance"] < threshold]) > 0:
             others_sum = overall_feature_importance_df[overall_feature_importance_df["Importance"] < threshold]["Importance"].sum()
             others_row = pd.DataFrame({"Feature": "Others", "Importance": [others_sum]})
             filtered_data = pd.concat([filtered_data, others_row], ignore_index=True)
+
+        st.subheader("Feature Importance (Pie Chart)")
         plt.figure(figsize=(8, 8))
         plt.pie(filtered_data['Importance'], labels=filtered_data['Feature'], autopct='%1.0f%%', startangle=140, colors=sns.color_palette('viridis'))
-
         plt.title('Overall Feature Importance')
-        st.pyplot(plt)
+        st.pyplot()
 
-        if 'X_test' in st.session_state:
-            X_test = st.session_state.X_test  # Access X_test from session state
-        else:
-            st.error("X_test is not available. Please load the data first.")
-            X_test = None
+        # Decode columns for X_test
+        X_test['Marital_Status'] = X_test[['Marital_Status_YOLO', 'Marital_Status_Together', 'Marital_Status_Married', 
+                                           'Marital_Status_Widow', 'Marital_Status_Divorced', 'Marital_Status_Alone', 
+                                           'Marital_Status_Single']].idxmax(axis=1).str.replace('Marital_Status_', '')
+        X_test['Education'] = X_test[['Education_PhD', 'Education_Master', 'Education_Graduation', 'Education_Basic']].idxmax(axis=1).str.replace('Education_', '')
 
-        if X_test is not None:
-            # Decode the 'Marital_Status' columns (one-hot encoded to categorical)
-            marital_status_columns = ['Marital_Status_YOLO', 'Marital_Status_Together', 'Marital_Status_Married', 'Marital_Status_Widow', 
-                              'Marital_Status_Divorced', 'Marital_Status_Alone', 'Marital_Status_Single']
-            education_columns = ['Education_PhD', 'Education_Master', 'Education_Graduation', 'Education_Basic']
-    
-            # Check if all the necessary columns exist in X_test
-            if all(col in X_test.columns for col in marital_status_columns):
-                X_test['Marital_Status'] = X_test[marital_status_columns].idxmax(axis=1).str.replace('Marital_Status_', '')
-                st.write("Successfully decoded 'Marital_Status' columns!")
-            else:
-                st.error("Some 'Marital_Status' columns are missing in X_test.")
-    
-            if all(col in X_test.columns for col in education_columns):
-                X_test['Education'] = X_test[education_columns].idxmax(axis=1).str.replace('Education_', '')
-                st.write("Successfully decoded 'Education' columns!")
-            else:
-                st.error("Some 'Education' columns are missing in X_test.")
-    
-            # Drop the one-hot encoded columns
-            columns_to_drop = marital_status_columns + education_columns
-            X_test = X_test.drop(columns=columns_to_drop, axis=1)
+        # Drop the one-hot encoded columns
+        X_test = X_test.drop(['Marital_Status_YOLO', 'Marital_Status_Together', 'Marital_Status_Married', 
+                              'Marital_Status_Widow', 'Marital_Status_Divorced', 'Marital_Status_Alone', 
+                              'Marital_Status_Single', 'Education_PhD', 'Education_Master', 'Education_Graduation', 
+                              'Education_Basic'], axis=1)
 
-            # Display the updated DataFrame
-            st.write("Updated X_test DataFrame:")
-            st.dataframe(X_test.head())  # Display the first few rows for preview
+        # Columns for predictions
+        target_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+        mae_list = []
+        results_list = []
 
-        else:
-            st.error("X_test DataFrame is not available.")
+        for i in range(len(y_test)):
+            data_point_result = {'Data_Point': i + 1}
+            data_point_result.update(X_test.iloc[i].to_dict())
+
+            for j, col in enumerate(target_columns):
+                actual = y_test.iloc[i, j]
+                predicted = y_pred[i, j]
+                absolute_error = abs(actual - predicted)
+                mae_list.append(absolute_error)
+
+                data_point_result[f"{col}_Actual"] = actual
+                data_point_result[f"{col}_Predicted"] = predicted
+                data_point_result[f"{col}_Absolute_Error"] = absolute_error
+
+            results_list.append(data_point_result)
+
+        # Convert to DataFrame
+        results_df = pd.DataFrame(results_list)
+        st.subheader("Prediction Results")
+        st.write(results_df)
+
+        # Display scatter plot of actual vs predicted values
+        melted_df = results_df.melt(id_vars=['Year_Birth', 'Marital_Status', 'Kidhome', 'Teenhome', 'Education', 'Income', 'Recency'],
+                                    value_vars=[f'{col}_Predicted' for col in target_columns] + [f'{col}_Actual' for col in target_columns],
+                                    var_name='Category_Variable', value_name='Value')
+
+        melted_df['Category'] = melted_df['Category_Variable'].apply(lambda x: x.split('_')[0])
+        melted_df['Type'] = melted_df['Category_Variable'].apply(lambda x: x.split('_')[1])
+
+        pivoted_df = melted_df.pivot_table(index=['Year_Birth', 'Marital_Status', 'Kidhome', 'Teenhome', 'Education', 'Income', 'Recency', 'Category'],
+                                           columns='Type', values='Value').reset_index()
+
+        st.subheader("Actual vs Predicted Values (Scatter Plot)")
+        plt.figure(figsize=(10, 6))
+        sns.scatterplot(x="Actual", y="Predicted", hue="Category", data=pivoted_df, s=100, palette="deep")
+        plt.plot([pivoted_df["Actual"].min(), pivoted_df["Actual"].max()],
+                 [pivoted_df["Actual"].min(), pivoted_df["Actual"].max()], 'k--', lw=2)
+        plt.title("Actual vs. Predicted Values Across Multiple Categories")
+        plt.xlabel("Actual Values")
+        plt.ylabel("Predicted Values")
+        st.pyplot()
+
+        # Mean Absolute Error for each target variable
+        mae_values = {col: mean_absolute_error(y_test[col], y_pred[:, i]) for i, col in enumerate(target_columns)}
+        mae_values["Overall MAE"] = sum(mae_values.values()) / len(mae_values)
+
+        mae_df = pd.DataFrame(list(mae_values.items()), columns=["Category", "MAE"])
+        st.subheader("Mean Absolute Error for Each Target Variable")
+        st.write(mae_df)
+
+    else:
+        st.error("Data is missing, cannot run prediction.")
+
 # Conclusions Page
 elif st.session_state.page_selection == "conclusion":
     st.header("📝 Conclusion")
