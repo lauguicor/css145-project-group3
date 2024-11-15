@@ -175,60 +175,47 @@ elif st.session_state.page_selection == "eda":
     
     
     # Check if clean_pd exists before proceeding
-        with col[0]:
-            st.markdown('#### Correlation Heatmap')
-            clean_pd = st.session_state.get('clean_pd', None)
-            required_columns = ['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
-            if all(col in clean_pd.columns for col in required_columns):
-                heatmap_pd = clean_pd[required_columns]
-                correlation_matrix = heatmap_pd.corr()
+    with col[0]:
+        st.markdown('#### Correlation Heatmap')
+        clean_pd = st.session_state.get('clean_pd', None)
+        required_columns = ['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+        if all(col in clean_pd.columns for col in required_columns):
+            heatmap_pd = clean_pd[required_columns]
+            correlation_matrix = heatmap_pd.corr()
 
-                plt.figure(figsize=(12, 8))
-                sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
-                plt.title("Correlation on Income vs Product Spending")
-                st.pyplot()
-            else:
-                st.warning("Required columns for correlation heatmap are missing!")
+            plt.figure(figsize=(12, 8))
+            sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
+            plt.title("Correlation on Income vs Product Spending")
+            st.pyplot()
+        else:
+            st.warning("Required columns for correlation heatmap are missing!")
 
-        with col[1]:
-            st.markdown('#### Total Product Sales')
-            clean_pd = st.session_state.get('clean_pd', None)
-            sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
-            if all(col in clean_pd.columns for col in sales_columns):
-                prodsales_pd = pd.DataFrame({
-                    'MntWines': [clean_pd['MntWines'].sum()],
-                    'MntFruits': [clean_pd['MntFruits'].sum()],
-                    'MntMeatProducts': [clean_pd['MntMeatProducts'].sum()],
-                    'MntFishProducts': [clean_pd['MntFishProducts'].sum()],
-                    'MntSweetProducts': [clean_pd['MntSweetProducts'].sum()],
-                    'MntGoldProds': [clean_pd['MntGoldProds'].sum()]
-                })
+    with col[1]:
+        st.markdown('#### Total Product Sales')
+        clean_pd = st.session_state.get('clean_pd', None)
+        sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+        if all(col in clean_pd.columns for col in sales_columns):
+            prodsales_pd = pd.DataFrame({
+                'MntWines': [clean_pd['MntWines'].sum()],
+                'MntFruits': [clean_pd['MntFruits'].sum()],
+                'MntMeatProducts': [clean_pd['MntMeatProducts'].sum()],
+                'MntFishProducts': [clean_pd['MntFishProducts'].sum()],
+                'MntSweetProducts': [clean_pd['MntSweetProducts'].sum()],
+                'MntGoldProds': [clean_pd['MntGoldProds'].sum()]
+            })
 
-                prodsales_pivot = prodsales_pd.melt(var_name="Product", value_name="TotalSales")
-                st.write(prodsales_pivot)
+            prodsales_pivot = prodsales_pd.melt(var_name="Product", value_name="TotalSales")
+            st.write(prodsales_pivot)
 
-                plt.figure(figsize=(10, 6))
-                sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
-                st.pyplot()
-            else:
-                st.warning("Missing product sales data for total sales bar chart!")
+            plt.figure(figsize=(10, 6))
+            sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
+            st.pyplot()
+        else:
+            st.warning("Missing product sales data for total sales bar chart!")
 
-        with col[2]:
-            st.markdown('#### Other EDA Visualizations')
+    with col[2]:
+        st.markdown('#### Other EDA Visualizations')
 
-            # Additional EDA visualizations can go here, e.g., histograms, scatter plots
-            # Example: Age distribution by marital status
-            if 'Year_Birth' in clean_pd.columns and 'Marital_Status' in clean_pd.columns:
-                age_distribution = clean_pd.groupby('Marital_Status')['Year_Birth'].apply(lambda x: 2023 - x).reset_index(name='Age')
-                plt.figure(figsize=(10, 6))
-                sns.boxplot(x='Marital_Status', y='Age', data=age_distribution, palette='Set2')
-                plt.title("Age Distribution by Marital Status")
-                st.pyplot()
-
-            else:
-                st.warning("Necessary columns for age distribution visualization are missing.")
-    else:
-        st.error("Cleaned dataset is not available! Please check the data cleaning section.")
 # Machine Learning Page
 elif st.session_state.page_selection == "machine_learning":
     st.header("🤖 Machine Learning")
