@@ -173,46 +173,55 @@ elif st.session_state.page_selection == "eda":
 
     col = st.columns((1.5, 4.5, 2), gap='medium')
     
+    clean_pd = st.session_state.get('clean_pd', None)
     
-    # Check if clean_pd exists before proceeding
-    with col[0]:
-        st.markdown('#### Correlation Heatmap')
-        clean_pd = st.session_state.get('clean_pd', None)
-        required_columns = ['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+    if clean_pd is not None:
+        with col[0]:
+            st.markdown('#### Correlation Heatmap')
+            required_columns = ['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
 
-        heatmap_pd = clean_pd[required_columns]
-        correlation_matrix = heatmap_pd.corr()
+            if all(col in clean_pd.columns for col in required_columns):
+                heatmap_pd = clean_pd[required_columns]
+                correlation_matrix = heatmap_pd.corr()
 
-        plt.figure(figsize=(12, 8))
-        sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
-        plt.title("Correlation on Income vs Product Spending")
-        st.pyplot()
-
+                plt.figure(figsize=(12, 8))
+                sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
+                plt.title("Correlation on Income vs Product Spending")
+                st.pyplot()
+            else:
+                st.warning("Some required columns for the heatmap are missing!")
+    else:
+        st.warning("Cleaned dataset (clean_pd) is not available!")
 
     with col[1]:
         st.markdown('#### Total Product Sales')
-        clean_pd = st.session_state.get('clean_pd', None)
-        sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
-        
-        prodsales_pd = pd.DataFrame({
-            'MntWines': [clean_pd['MntWines'].sum()],
-            'MntFruits': [clean_pd['MntFruits'].sum()],
-            'MntMeatProducts': [clean_pd['MntMeatProducts'].sum()],
-            'MntFishProducts': [clean_pd['MntFishProducts'].sum()],
-            'MntSweetProducts': [clean_pd['MntSweetProducts'].sum()],
-            'MntGoldProds': [clean_pd['MntGoldProds'].sum()]
-        })
+        if clean_pd is not None:
+            sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+            
+            if all(col in clean_pd.columns for col in sales_columns):
+                prodsales_pd = pd.DataFrame({
+                    'MntWines': [clean_pd['MntWines'].sum()],
+                    'MntFruits': [clean_pd['MntFruits'].sum()],
+                    'MntMeatProducts': [clean_pd['MntMeatProducts'].sum()],
+                    'MntFishProducts': [clean_pd['MntFishProducts'].sum()],
+                    'MntSweetProducts': [clean_pd['MntSweetProducts'].sum()],
+                    'MntGoldProds': [clean_pd['MntGoldProds'].sum()]
+                })
 
-        prodsales_pivot = prodsales_pd.melt(var_name="Product", value_name="TotalSales")
-        st.write(prodsales_pivot)
+                prodsales_pivot = prodsales_pd.melt(var_name="Product", value_name="TotalSales")
+                st.write(prodsales_pivot)
 
-        plt.figure(figsize=(10, 6))
-        sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
-        st.pyplot()
-
+                plt.figure(figsize=(10, 6))
+                sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
+                st.pyplot()
+            else:
+                st.warning("Some required columns for the sales visualization are missing!")
+        else:
+            st.warning("Cleaned dataset (clean_pd) is not available!")
 
     with col[2]:
         st.markdown('#### Other EDA Visualizations')
+
 
 # Machine Learning Page
 elif st.session_state.page_selection == "machine_learning":
