@@ -105,9 +105,7 @@ if st.session_state.page_selection == "about":
 # Dataset Page
 elif st.session_state.page_selection == "dataset":
     st.header("📊 Dataset")
-    st.markdown("""Here is a preview of the dataset that we used in this project. The Customer Personality analysis is an analysis of what a company's ideal customer is.
-
-
+    st.markdown("""Here is a preview of the dataset that we used in this project. The Customer Personality analysis is an analysis of what a company's ideal customer is.\n
     `Link:` https://www.kaggle.com/datasets/imakash3011/customer-personality-analysis 
     """) 
 
