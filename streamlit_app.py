@@ -180,7 +180,7 @@ elif st.session_state.page_selection == "eda":
     with col[0]:
         if clean_pd is not None:
             st.markdown('#### Correlation Heatmap')
-            heatmap_pd = clean_pd['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+            heatmap_pd = clean_pd[['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']]
             correlation_matrix = heatmap_pd.corr()
 
             plt.figure(figsize=(12, 8))
@@ -189,6 +189,7 @@ elif st.session_state.page_selection == "eda":
             st.pyplot()
         else:
             st.warning("Cleaned dataset (clean_pd) is not available!")
+
 
     with col[1]:
         st.markdown('#### Total Product Sales')
