@@ -452,10 +452,10 @@ elif st.session_state.page_selection == "prediction":
             others_row = pd.DataFrame({"Feature": "Others", "Importance": [others_sum]})
             filtered_data = pd.concat([filtered_data, others_row], ignore_index=True)
 
-        plt.figure(figsize=(8, 8))
-        plt.pie(filtered_data['Importance'], labels=filtered_data['Feature'], autopct='%1.0f%%', startangle=140, colors=sns.color_palette('viridis'))
-        plt.title('Overall Feature Importance')
-        plt.show()
+            plt.figure(figsize=(8, 8))
+            plt.pie(filtered_data['Importance'], labels=filtered_data['Feature'], autopct='%1.0f%%', startangle=140, colors=sns.color_palette('viridis'))
+            plt.title('Overall Feature Importance')
+            plt.show()
 
 # Conclusions Page
 elif st.session_state.page_selection == "conclusion":
