@@ -161,12 +161,13 @@ elif st.session_state.page_selection == "data_cleaning":
                          'NumCatalogPurchases', 'NumStorePurchases', 'NumWebVisitsMonth']]
     st.dataframe(clean_pd)
 
-    st.session_state.clean_pd = clean_pd
+    
     
     # Display data types of columns
     st.write("### Data Types After Casting")
     st.write(clean_pd.dtypes)
-
+    
+    st.session_state.clean_pd = clean_pd
 # EDA Page
 elif st.session_state.page_selection == "eda":
     st.header("📈 Exploratory Data Analysis (EDA)")
