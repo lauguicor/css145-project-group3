@@ -182,8 +182,7 @@ elif st.session_state.page_selection == "eda":
             sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
             plt.title("Correlation on Income vs Product Spending")
             st.pyplot()
-            st.markdown('The heatmap shows the correlation between income and spending on different product categories. Higher income is generally associated with higher spending across most categories, with some exceptions like gold product)
-
+            
         with col[1]:
             st.markdown('#### Total Product Sales')
             sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
