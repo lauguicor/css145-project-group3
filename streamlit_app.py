@@ -217,7 +217,28 @@ elif st.session_state.page_selection == "eda":
             st.warning("Cleaned dataset (clean_pd) is not available!")
 
     with col[2]:
-        st.markdown('#### Other EDA Visualizations')
+        st.markdown('#### Total Purchases by Marital Status')
+        if clean_pd is not None:
+            marital_purchase_pd = pd.DataFrame({
+                'MntWines': clean_pd.groupby('Marital_Status')['MntWines'].sum(),
+                'MntFruits': clean_pd.groupby('Marital_Status')['MntFruits'].sum(),
+                'MntMeatProducts': clean_pd.groupby('Marital_Status')['MntMeatProducts'].sum(),
+                'MntFishProducts': clean_pd.groupby('Marital_Status')['MntFishProducts'].sum(),
+                'MntSweetProducts': clean_pd.groupby('Marital_Status')['MntSweetProducts'].sum(),
+                'MntGoldProds': clean_pd.groupby('Marital_Status')['MntGoldProds'].sum()
+            })
+
+            marital_purchase_pd['TotalSales'] = marital_purchase_pd.sum(axis=1)
+            plt.figure(figsize=(10, 6))
+            sns.barplot(x=marital_purchase_pd.index, y='TotalSales', data=marital_purchase_pd, palette='viridis')
+
+            plt.title('Total Purchases by Marital Status')
+            plt.xlabel('Marital Status')
+            plt.ylabel('Total Purchases')
+            plt.xticks(rotation=45)
+            st.pyplot()
+        else:
+            st.warning("Cleaned dataset (clean_pd) is not available!")
 
 
 # Machine Learning Page
