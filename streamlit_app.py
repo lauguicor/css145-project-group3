@@ -456,10 +456,22 @@ elif st.session_state.page_selection == "prediction":
         plt.title('Overall Feature Importance')
         st.pyplot(plt)
 
-        X_test['Marital_Status'] = X_test[ ['Marital_Status_YOLO', 'Marital_Status_Together', 'Marital_Status_Married', 'Marital_Status_Widow', 'Marital_Status_Divorced', 'Marital_Status_Alone', 'Marital_Status_Single']].idxmax(axis=1).str.replace('Marital_Status_', '')
-        X_test['Education'] = X_test[['Education_PhD', 'Education_Master', 'Education_Graduation', 'Education_Basic']].idxmax(axis=1).str.replace('Education_', '')
-        X_test = X_test.drop(['Marital_Status_YOLO', 'Marital_Status_Together', 'Marital_Status_Married', 'Marital_Status_Widow', 'Marital_Status_Divorced', 'Marital_Status_Alone', 'Marital_Status_Single', 'Education_PhD', 'Education_Master', 'Education_Graduation', 'Education_Basic'], axis=1)
+        marital_status_columns = ['Marital_Status_YOLO', 'Marital_Status_Together', 'Marital_Status_Married', 'Marital_Status_Widow', 'Marital_Status_Divorced', 'Marital_Status_Alone', 'Marital_Status_Single']
+        education_columns = ['Education_PhD', 'Education_Master', 'Education_Graduation', 'Education_Basic']
 
+        if all(col in X_test.columns for col in marital_status_columns):
+            X_test['Marital_Status'] = X_test[marital_status_columns].idxmax(axis=1).str.replace('Marital_Status_', '')
+        else:
+            st.write("Some 'Marital_Status' columns are missing.")
+        if all(col in X_test.columns for col in education_columns):
+            X_test['Education'] = X_test[education_columns].idxmax(axis=1).str.replace('Education_', '')
+        else:
+            st.write("Some 'Education' columns are missing.")
+
+        X_test['Marital_Status'] = X_test['Marital_Status'].fillna('Unknown')
+        X_test['Education'] = X_test['Education'].fillna('Unknown')
+
+        st.write(X_test[['Marital_Status', 'Education']].head())
 # Conclusions Page
 elif st.session_state.page_selection == "conclusion":
     st.header("📝 Conclusion")
