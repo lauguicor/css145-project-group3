@@ -175,9 +175,8 @@ elif st.session_state.page_selection == "eda":
     col = st.columns((1.5, 4.5, 2), gap='medium')
 
     clean_pd = st.session_state.get('clean_pd', None)
-
+    with col[0]:
     if clean_pd is not None:
-        with col[0]:
         st.markdown('#### Correlation Heatmap')
         heatmap_pd = clean_pd['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
         correlation_matrix = heatmap_pd.corr()
