@@ -16,4 +16,5 @@ This project is about predicting sales based on income using machine learning
 
 
 Hosted streamlit dashboard link: https://css145-project-group3-datascience.streamlit.app/
+
 Google Collab link: https://colab.research.google.com/drive/1ehcMxXQievvhp9ynlQcAZTcb5TKkKugC?usp=sharing
