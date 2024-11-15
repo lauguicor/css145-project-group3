@@ -93,13 +93,12 @@ if st.session_state.page_selection == "about":
     The project will focus on Customer prediction, to be more specific, the most purchased product (Given by the dataset). The group decisded to use K-Means Clustering and Decision Tree to predict our data.
 
     #### Pages
-    1. `Dataset` - This section introduces the Customer Personality dataset, which contains demographic and behavioral information collected from customers. It details the dataset's features and describes how these attributes can help understand customer segmentation and forecast spending habits.
-    2. `EDA` - The EDA section analyzes patterns in customer demographics and purchase behaviors, using visualizations like pie charts for product category distributions, bar charts and histograms for spending and demographic trends, a correlation heatmap for feature relationships, and a pairwise scatter plot matrix (if suitable) to explore connections among different attributes.
-    3. `Data Cleaning / Pre-processing` - This page outlines the data cleaning and pre-processing procedures, such as handling missing values, encoding categories (e.g., education levels, marital status), and scaling numerical features. The final dataset is then split into training and testing sets to prepare for model training.
-    4. `Machine Learning` - In this section, we apply machine learning models to understand customer segments and predict spending. K-Means Clustering is used for customer segmentation, with visualizations to display clusters, while a Random Forest Regressor predicts spending patterns, evaluated using metrics like Mean Absolute Error. Feature importance analysis identifies which factors most significantly affect spending.
-    5. `Prediction` - The prediction page provides an interactive tool where users can input data such as customer demographics and preferences to make spending predictions or identify cluster membership using the trained models, offering a real-time application of the analysis.
-    6. `Conclusion` - This section highlights key insights from the EDA and model analysis, including observed trends in customer spending and segmentation results. It also suggests future enhancements, like adding granular behavior data or exploring additional models to improve prediction accuracy.
-
+    - `Dataset` - Introduction to the Customer Personality dataset, providing demographic and behavioral details that help with customer segmentation and spending habit analysis.
+    - `EDA` - Exploratory Data Analysis of the dataset to uncover patterns in demographics and purchase behaviors. Includes visualizations such as bar charts, and a correlation heatmap.
+    - `Data Cleaning / Pre-processing` - Data cleaning steps to handle missing values, encode categorical features, and scale numerical features. Prepares the dataset for model training by splitting it into training and testing sets.
+    - `Machine Learning` - Application of machine learning models: K-Means Clustering for customer segmentation and a Random Forest Regressor to predict spending. Includes visualizations of clusters and model evaluation using metrics such as Mean Absolute Error.
+    - `Prediction` - Interactive page allowing users to input customer demographic and preference data to predict spending or cluster membership based on the trained models.
+    - `Conclusion` - Summarizes key findings from the EDA and machine learning analyses, highlighting trends in customer spending and segmentation. Suggests potential future enhancements to improve accuracy and insights.
 
     """)
 
