@@ -178,19 +178,14 @@ elif st.session_state.page_selection == "eda":
 
     if clean_pd is not None:
         with col[0]:
-            st.markdown('#### Correlation Heatmap')
-            required_columns = ['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+        st.markdown('#### Correlation Heatmap')
+        heatmap_pd = clean_pd['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+        correlation_matrix = heatmap_pd.corr()
 
-            if all(col in clean_pd.columns for col in required_columns):
-                heatmap_pd = clean_pd[required_columns]
-                correlation_matrix = heatmap_pd.corr()
-
-                plt.figure(figsize=(12, 8))
-                sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
-                plt.title("Correlation on Income vs Product Spending")
-                st.pyplot()
-            else:
-                st.warning("Some required columns for the heatmap are missing!")
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
+        plt.title("Correlation on Income vs Product Spending")
+        st.pyplot()
     else:
         st.warning("Cleaned dataset (clean_pd) is not available!")
 
