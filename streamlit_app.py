@@ -172,11 +172,10 @@ elif st.session_state.page_selection == "eda":
     st.header("📈 Exploratory Data Analysis (EDA)")
 
     col = st.columns((1.5, 4.5, 2), gap='medium')
-    
-    clean_pd = st.session_state.get('clean_pd', None)
-    
+
     if clean_pd is not None:
         with col[0]:
+            clean_pd = st.session_state.get('clean_pd', None)
             st.markdown('#### Correlation Heatmap')
             required_columns = ['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
 
@@ -195,6 +194,7 @@ elif st.session_state.page_selection == "eda":
 
     with col[1]:
         st.markdown('#### Total Product Sales')
+        clean_pd = st.session_state.get('clean_pd', None)
         if clean_pd is not None:
             sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
             
