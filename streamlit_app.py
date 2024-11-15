@@ -446,6 +446,10 @@ elif st.session_state.page_selection == "prediction":
         # Predict spending on the test set
         y_pred = model.predict(X_test)
 
+        # Store y_test and mae_values in session_state for access on the conclusion page
+        st.session_state.y_test = y_test
+        st.session_state.mae_values = pd.DataFrame(abs(y_test - y_pred), columns=y.columns)  # Calculate MAE values
+
         # Determine the importance of each customer description to the products
         feature_importances = {}
         individual_feature_importance_list = []
@@ -570,7 +574,8 @@ elif st.session_state.page_selection == "prediction":
         st.pyplot()
 
         # Correlation heatmap for predicted values
-        target_columns = ['MntWines_Predicted', 'MntFruits_Predicted', 'MntMeatProducts_Predicted', 'MntFishProducts_Predicted', 'MntSweetProducts_Predicted', 'MntGoldProds_Predicted']
+        target_columns = ['MntWines_Predicted', 'MntFruits_Predicted', 'MntMeatProducts_Predicted', 
+                          'MntFishProducts_Predicted', 'MntSweetProducts_Predicted', 'MntGoldProds_Predicted']
 
         correlation_matrix = results_df[feature_columns + target_columns].corr()
 
@@ -590,13 +595,53 @@ elif st.session_state.page_selection == "prediction":
     else:
         st.error("Data is missing, cannot run prediction.")
 
-# Conclusions Page
+# Conclusion Page
 elif st.session_state.page_selection == "conclusion":
     st.header("📝 Conclusion")
+
+    # Ensure that predictions (y_test and mae_values) are available
+    if 'y_test' in st.session_state and 'mae_values' in st.session_state:
+        y_test = st.session_state.y_test
+        mae_values = st.session_state.mae_values
+        
+        target_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
+        accuracy_data = []
+        weighted_accuracy_sum = 0
+        total_weight = 0
+
+        # Calculate and store percentage accuracy for each category
+        for col in target_columns:
+            avg_actual = y_test[col].mean()  # Average actual value for the category
+            percentage_accuracy = (1 - (mae_values[col] / avg_actual)) * 100  # Percentage accuracy
+            accuracy_data.append({"Category": col, "Percentage Accuracy": percentage_accuracy})
+
+            # Add to the weighted accuracy sum and total weight
+            weighted_accuracy_sum += percentage_accuracy * avg_actual
+            total_weight += avg_actual
+
+        # Calculate the overall percentage accuracy
+        overall_percentage_accuracy = weighted_accuracy_sum / total_weight
+        accuracy_data.append({"Category": "Overall Percentage Accuracy", "Percentage Accuracy": overall_percentage_accuracy})
+
+        # Convert accuracy data to DataFrame and display it
+        accuracy_df = pd.DataFrame(accuracy_data)
+        st.subheader("Percentage Accuracy Per Category")
+        st.write(accuracy_df)
+
+        # Ensure no NaN values in Percentage Accuracy before plotting
+        prod_acc_df = accuracy_df[accuracy_df['Category'].isin(target_columns)]
+
+        # Convert to numeric and drop any NaN values
+        prod_acc_df['Percentage Accuracy'] = pd.to_numeric(prod_acc_df['Percentage Accuracy'], errors='coerce')
+        prod_acc_df = prod_acc_df.dropna(subset=['Percentage Accuracy'])
+
+    else:
+        st.error("Prediction results or MAE values are missing, cannot calculate accuracy.")
+
     st.markdown("""
-    * We used the People variables (it came with the dataset), to create the Machine Learning prediction results. The data set used was Customer Prediction Analysis by Akash Patel
+    * We used the People variables (it came with the dataset), to create the Machine Learning prediction results. The data set used was Customer Prediction Analysis by Akash Patel.
     * The data was thoroughly cleaned from any null variables that may cause biased predictions toward certain demographics. Upon cleaning the group noticed variables that had a small sample, which could be turned into biased predictions.
     * Exploratory Data Analysis (EDA) uses heatmaps and bar charts for visualization of data on the most prominent variables.
     * The Machine Learning model uses K-means Clustering to predict the possible customer product trends.
     * The Predictions had an overall prediction of 49.07%
-    """)
+        """)
