@@ -443,7 +443,19 @@ elif st.session_state.page_selection == "prediction":
         sorted_overall_importances = sorted(overall_feature_importances.items(), key=lambda x: x[1], reverse=True)
         overall_feature_importance_df = pd.DataFrame(sorted_overall_importances, columns=["Feature", "Importance"])
         st.dataframe(overall_feature_importance_df)
-        
+
+        threshold = 0.012
+        filtered_data = overall_feature_importance_df[overall_feature_importance_df["Importance"] >= threshold]
+
+        if len(overall_feature_importance_df[overall_feature_importance_df["Importance"] < threshold]) > 0:
+            others_sum = overall_feature_importance_df[overall_feature_importance_df["Importance"] < threshold]["Importance"].sum()
+            others_row = pd.DataFrame({"Feature": "Others", "Importance": [others_sum]})
+            filtered_data = pd.concat([filtered_data, others_row], ignore_index=True)
+
+        plt.figure(figsize=(8, 8))
+        plt.pie(filtered_data['Importance'], labels=filtered_data['Feature'], autopct='%1.0f%%', startangle=140, colors=sns.color_palette('viridis'))
+        plt.title('Overall Feature Importance')
+        plt.show()
 
 # Conclusions Page
 elif st.session_state.page_selection == "conclusion":
