@@ -418,7 +418,32 @@ elif st.session_state.page_selection == "prediction":
 
         y_pred = model.predict(X_test)
 
-        
+        feature_importances = {}
+        individual_feature_importance_list = []
+        overall_feature_importances = {feature: 0 for feature in X.columns}
+
+        for i, target in enumerate(y.columns):
+            importances = model.estimators_[i].feature_importances_
+            feature_importances[target] = dict(zip(X.columns, importances))
+            for feature, importance in zip(X.columns, importances):
+                overall_feature_importances[feature] += importance
+
+        num_targets = len(y.columns)
+        for feature in overall_feature_importances:
+            overall_feature_importances[feature] /= num_targets
+
+        for target, importances in feature_importances.items():
+            sorted_importances = sorted(importances.items(), key=lambda x: x[1], reverse=True)
+            for feature, importance in sorted_importances:
+                individual_feature_importance_list.append({"Target": target, "Feature": feature, "Importance": importance})
+
+        individual_feature_importance_df = pd.DataFrame(individual_feature_importance_list)
+        display(individual_feature_importance_df)
+
+        sorted_overall_importances = sorted(overall_feature_importances.items(), key=lambda x: x[1], reverse=True)
+        overall_feature_importance_df = pd.DataFrame(sorted_overall_importances, columns=["Feature", "Importance"])
+
+        display(overall_feature_importance_df)
         
 
 # Conclusions Page
