@@ -188,30 +188,7 @@ elif st.session_state.page_selection == "eda":
             else:
                 st.warning("Required columns for correlation heatmap are missing!")
 
-            st.markdown('#### Total Product Sales')
 
-            
-            sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
-            if all(col in clean_pd.columns for col in sales_columns):
-                prodsales_pd = pd.DataFrame({
-                    'MntWines': [clean_pd['MntWines'].sum()],
-                    'MntFruits': [clean_pd['MntFruits'].sum()],
-                    'MntMeatProducts': [clean_pd['MntMeatProducts'].sum()],
-                    'MntFishProducts': [clean_pd['MntFishProducts'].sum()],
-                    'MntSweetProducts': [clean_pd['MntSweetProducts'].sum()],
-                    'MntGoldProds': [clean_pd['MntGoldProds'].sum()]
-                })
-
-                prodsales_pivot = prodsales_pd.melt(var_name="Product", value_name="TotalSales")
-                st.write(prodsales_pivot)
-
-                plt.figure(figsize=(10, 6))
-                sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
-                st.pyplot()
-            else:
-                st.warning("Missing product sales data for total sales bar chart!")
-            st.markdown('#### Graphs Column 3')
-            clean_pd = st.session_state.get('clean_pd', None)
        
 # Machine Learning Page
 elif st.session_state.page_selection == "machine_learning":
