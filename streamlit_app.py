@@ -175,7 +175,6 @@ elif st.session_state.page_selection == "eda":
     
     
     # Check if clean_pd exists before proceeding
-    if clean_pd is not None:
         with col[0]:
             st.markdown('#### Correlation Heatmap')
             clean_pd = st.session_state.get('clean_pd', None)
@@ -194,7 +193,6 @@ elif st.session_state.page_selection == "eda":
         with col[1]:
             st.markdown('#### Total Product Sales')
             clean_pd = st.session_state.get('clean_pd', None)
-            # Check if necessary columns are present for total sales
             sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
             if all(col in clean_pd.columns for col in sales_columns):
                 prodsales_pd = pd.DataFrame({
