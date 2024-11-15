@@ -179,7 +179,7 @@ elif st.session_state.page_selection == "eda":
         st.markdown('#### Correlation Heatmap')
         clean_pd = st.session_state.get('clean_pd', None)
         required_columns = ['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
-        if all(col in clean_pd.columns for col in required_columns):
+
             heatmap_pd = clean_pd[required_columns]
             correlation_matrix = heatmap_pd.corr()
 
@@ -187,14 +187,13 @@ elif st.session_state.page_selection == "eda":
             sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
             plt.title("Correlation on Income vs Product Spending")
             st.pyplot()
-        else:
-            st.warning("Required columns for correlation heatmap are missing!")
+
 
     with col[1]:
         st.markdown('#### Total Product Sales')
         clean_pd = st.session_state.get('clean_pd', None)
         sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
-        if all(col in clean_pd.columns for col in sales_columns):
+        
             prodsales_pd = pd.DataFrame({
                 'MntWines': [clean_pd['MntWines'].sum()],
                 'MntFruits': [clean_pd['MntFruits'].sum()],
@@ -210,8 +209,7 @@ elif st.session_state.page_selection == "eda":
             plt.figure(figsize=(10, 6))
             sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
             st.pyplot()
-        else:
-            st.warning("Missing product sales data for total sales bar chart!")
+
 
     with col[2]:
         st.markdown('#### Other EDA Visualizations')
