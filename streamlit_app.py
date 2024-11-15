@@ -176,19 +176,19 @@ elif st.session_state.page_selection == "eda":
 
     if clean_pd is not None:
         # Perform EDA tasks
-        col = st.columns((3, 4, 3), gap='medium')
+        col = st.columns(1, gap='large')  # Adjusted layout to 2 columns for better space management
 
         with col[0]:
             st.markdown('#### Correlation Heatmap')
             st.markdown("""The heatmap shows the correlation between income and spending on different product categories. Higher income is generally associated with higher spending across most categories, with some exceptions like gold products.""")
             heatmap_pd = clean_pd[['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']]
             correlation_matrix = heatmap_pd.corr()
-            plt.figure(figsize=(12, 8))
+            plt.figure(figsize=(10, 6))  # Increased size for better visibility
             sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm")
             plt.title("Correlation on Income vs Product Spending")
             st.pyplot()
-            
-        with col[1]:
+
+        with col[0]:
             st.markdown('#### Total Product Sales')
             st.markdown("""The bar chart shows the total sales for different product categories. Wine has the highest sales, followed by meat products. Gold products and sweet products have the lowest sales.""")
             sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
@@ -202,11 +202,14 @@ elif st.session_state.page_selection == "eda":
                     'MntGoldProds': [clean_pd['MntGoldProds'].sum()]
                 })
                 prodsales_pivot = prodsales_pd.melt(var_name="Product", value_name="TotalSales")
-                plt.figure(figsize=(10, 6))
+                plt.figure(figsize=(10, 6))  # Increased size for better visibility
                 sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
                 st.pyplot()
 
-        with col[2]:
+        # Second row of columns with larger plots for better organization
+        col2 = st.columns(1, gap='large')  # Adjusted layout to 2 columns for better space management
+
+        with col2[0]:
             st.markdown('#### Total Purchases by Marital Status')
             st.markdown("""The bar chart shows total purchases by marital status. Married individuals have the highest purchases, followed by single individuals. Divorced and "Together" have similar levels, while other categories have significantly lower purchases.""")
             marital_purchase_pd = pd.DataFrame({
@@ -218,7 +221,7 @@ elif st.session_state.page_selection == "eda":
                 'MntGoldProds': clean_pd.groupby('Marital_Status')['MntGoldProds'].sum()
             })
             marital_purchase_pd['TotalSales'] = marital_purchase_pd.sum(axis=1)
-            plt.figure(figsize=(10, 6))
+            plt.figure(figsize=(10, 6))  # Increased size for better visibility
             sns.barplot(x=marital_purchase_pd.index, y='TotalSales', data=marital_purchase_pd, palette='viridis')
             plt.title('Total Purchases by Marital Status')
             plt.xlabel('Marital Status')
@@ -226,8 +229,66 @@ elif st.session_state.page_selection == "eda":
             plt.xticks(rotation=45)
             st.pyplot()
 
+        with col2[0]:
+            st.markdown('#### Total Purchases per Product per Year')
+            st.markdown("""This bar chart shows the total purchases per product per year. It allows you to see trends and changes in consumer behavior over time.""")
+
+            # Prepare the data for the plot
+            clean_pd['Dt_Customer'] = pd.to_datetime(clean_pd['Dt_Customer'], format='%Y-%m-%d')
+            year_purchase_pd = clean_pd.groupby(clean_pd['Dt_Customer'].dt.year).agg({
+                'MntWines': 'sum',
+                'MntFruits': 'sum',
+                'MntMeatProducts': 'sum',
+                'MntFishProducts': 'sum',
+                'MntSweetProducts': 'sum',
+                'MntGoldProds': 'sum'
+            }).reset_index()
+
+            # Rename the year column to "FiscalYear"
+            year_purchase_pd.rename(columns={'Dt_Customer': 'FiscalYear'}, inplace=True)
+
+            # Melt the data for plotting
+            pivot_year = year_purchase_pd.melt(id_vars=["FiscalYear"],
+                                                value_vars=['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds'],
+                                                var_name="Product",
+                                                value_name="TotalSales")
+
+            # Plot the data
+            plt.figure(figsize=(10, 6))  # Increased size for better visibility
+            sns.barplot(x="FiscalYear", y="TotalSales", data=pivot_year, hue="Product", palette='viridis')
+
+            plt.title('Total Purchases per Product per Year')
+            plt.xlabel('Fiscal Year')
+            plt.ylabel('Total Sales')
+            plt.xticks(rotation=45)
+            st.pyplot()
+
+        # Third row for the pie chart with larger size
+        col3 = st.columns(1)  # One column for the pie chart
+
+        with col3[0]:
+            st.markdown('#### Total Sales Distribution by Year')
+            st.markdown("""This pie chart shows the distribution of total sales by year, helping to visualize the contribution of each year to overall sales.""")
+
+            # Sum all purchases per year for pie chart
+            year_purchase_pd = clean_pd.groupby(clean_pd['Dt_Customer'].dt.year).apply(
+                lambda x: x['MntWines'].sum() + x['MntFruits'].sum() + x['MntMeatProducts'].sum() +
+                          x['MntFishProducts'].sum() + x['MntSweetProducts'].sum() + x['MntGoldProds'].sum()
+            ).reset_index(name='TotalSales')
+
+            # Rename the year column to "FiscalYear"
+            year_purchase_pd.rename(columns={'Dt_Customer': 'FiscalYear'}, inplace=True)
+
+            # Plot the pie chart
+            plt.figure(figsize=(10, 6))  # Increased size for better visibility
+            plt.pie(year_purchase_pd['TotalSales'], labels=year_purchase_pd['FiscalYear'], autopct='%1.1f%%', startangle=140, colors=sns.color_palette('viridis'))
+
+            plt.title('Total Sales Distribution by Year')
+            st.pyplot()
+
     else:
         st.warning("Cleaned dataset (clean_pd) is not available! Please run the Data Cleaning page first.")
+
 
 # Machine Learning Page
 elif st.session_state.page_selection == "machine_learning":
