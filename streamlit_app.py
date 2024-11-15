@@ -176,6 +176,7 @@ elif st.session_state.page_selection == "eda":
 
         with col[0]:
             st.markdown('#### Correlation Heatmap')
+            st.markdown("""The heatmap shows the correlation between income and spending on different product categories. Higher income is generally associated with higher spending across most categories, with some exceptions like gold products.""")
             heatmap_pd = clean_pd[['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']]
             correlation_matrix = heatmap_pd.corr()
             plt.figure(figsize=(12, 8))
@@ -185,6 +186,7 @@ elif st.session_state.page_selection == "eda":
             
         with col[1]:
             st.markdown('#### Total Product Sales')
+            st.markdown("""The bar chart shows the total sales for different product categories. Wine has the highest sales, followed by meat products. Gold products and sweet products have the lowest sales.""")
             sales_columns = ['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
             if all(col in clean_pd.columns for col in sales_columns):
                 prodsales_pd = pd.DataFrame({
@@ -202,6 +204,7 @@ elif st.session_state.page_selection == "eda":
 
         with col[2]:
             st.markdown('#### Total Purchases by Marital Status')
+            st.markdown("""The bar chart shows total purchases by marital status. Married individuals have the highest purchases, followed by single individuals. Divorced and "Together" have similar levels, while other categories have significantly lower purchases.""")
             marital_purchase_pd = pd.DataFrame({
                 'MntWines': clean_pd.groupby('Marital_Status')['MntWines'].sum(),
                 'MntFruits': clean_pd.groupby('Marital_Status')['MntFruits'].sum(),
