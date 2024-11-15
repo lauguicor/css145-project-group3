@@ -454,7 +454,7 @@ elif st.session_state.page_selection == "prediction":
         plt.pie(filtered_data['Importance'], labels=filtered_data['Feature'], autopct='%1.0f%%', startangle=140, colors=sns.color_palette('viridis'))
 
         plt.title('Overall Feature Importance')
-        plt.show()
+        st.pyplot(plt)
 
 # Conclusions Page
 elif st.session_state.page_selection == "conclusion":
