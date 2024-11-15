@@ -168,6 +168,7 @@ elif st.session_state.page_selection == "data_cleaning":
     st.write(clean_pd.dtypes)
     
     st.session_state.clean_pd = clean_pd
+    st.table(clean_pd)
     
 # EDA Page
 elif st.session_state.page_selection == "eda":
