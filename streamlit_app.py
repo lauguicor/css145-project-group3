@@ -347,10 +347,116 @@ elif st.session_state.page_selection == "machine_learning":
         st.error("K-means cannot run because the data is missing. Please check the data cleaning page.")
 
 # Prediction Page
+# Prediction Page
 elif st.session_state.page_selection == "prediction":
     st.header("👀 Prediction")
 
-    # Your content for the PREDICTION page goes here
+    # Ensure that clean_pd is available in the session state
+    if 'clean_pd' in st.session_state:
+        kmeans_pd = st.session_state.clean_pd  # Access it from session state
+    else:
+        st.error("Cleaned data is not available. Please run the Data Cleaning page first.")
+        kmeans_pd = None
+
+    if kmeans_pd is not None:
+        # Label Encoding for categorical columns in the dataset
+        columns_to_encode = ['Year_Birth', 'Marital_Status', 'Education', 'Dt_Customer']
+        label_encoders = {}
+
+        # Encode categorical columns
+        for col in columns_to_encode:
+            le = LabelEncoder()
+            kmeans_pd[col] = le.fit_transform(kmeans_pd[col])
+            label_encoders[col] = le  # Store the encoder for possible later use
+
+        # Scaling for K-Means clustering
+        kmeans_df = kmeans_pd[['ID', 'Year_Birth', 'Education', 'Marital_Status', 'Dt_Customer', 'Income', 
+                               'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 
+                               'MntGoldProds']]
+        scaler = StandardScaler()
+        scaled = scaler.fit_transform(kmeans_df)
+
+        # Apply KMeans clustering
+        optimal_k = 3  # Set the optimal number of clusters based on previous analysis
+        kmeans = KMeans(n_clusters=optimal_k, random_state=42)
+        kmeans_pd['Cluster'] = kmeans.fit_predict(scaled)
+
+        # Cluster summary
+        cluster_summary = kmeans_pd.groupby('Cluster').mean()
+        st.subheader("Cluster Summary")
+        st.write(cluster_summary)
+
+        # Reverse label encoding for readability
+        kmeans_pd['Year_Birth'] = label_encoders['Year_Birth'].inverse_transform(kmeans_pd['Year_Birth'])
+        kmeans_pd['Marital_Status'] = label_encoders['Marital_Status'].inverse_transform(kmeans_pd['Marital_Status'])
+        kmeans_pd['Education'] = label_encoders['Education'].inverse_transform(kmeans_pd['Education'])
+        kmeans_pd['Dt_Customer'] = label_encoders['Dt_Customer'].inverse_transform(kmeans_pd['Dt_Customer'])
+        st.write(kmeans_pd)
+
+        # Visualizing cluster summary with average spending
+        pivot_cluster = cluster_summary.melt(id_vars="Income", 
+                                             value_vars=['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 
+                                                         'MntSweetProducts', 'MntGoldProds'],
+                                             var_name="Product", value_name="TotalSales")
+        st.subheader("Cluster Summary Showing Income and Product Spending")
+        plt.figure(figsize=(12, 6))
+        sns.barplot(data=pivot_cluster, x="Income", y="TotalSales", hue="Product", palette="viridis")
+        plt.title("Cluster Summary Showing Income and Product Spending")
+        plt.xlabel("Cluster Mean Income")
+        plt.ylabel("Average Spending")
+        plt.legend(title="Product")
+        st.pyplot()
+
+        # Prepare data for Random Forest model
+        classify_pd = clean_pd[['Year_Birth', 'Marital_Status', 'Kidhome', 'Teenhome', 'Education', 'Income', 'Recency', 
+                                 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 
+                                 'MntGoldProds']]
+        classify_pd = pd.get_dummies(classify_pd, columns=['Marital_Status', 'Education'], drop_first=True)
+
+        # Separate features and targets
+        X = classify_pd.drop(['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds'], axis=1)
+        y = classify_pd[['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']]
+
+        # Train-test split
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+        # Train Random Forest Regressor model
+        model = RandomForestRegressor(random_state=42)
+        model.fit(X_train, y_train)
+
+        # Make predictions
+        y_pred = model.predict(X_test)
+
+        # Determine feature importances for each product
+        feature_importances = {}
+        individual_feature_importance_list = []
+        overall_feature_importances = {feature: 0 for feature in X.columns}
+
+        # Loop through each target (product spending) and get feature importances
+        for i, target in enumerate(y.columns):
+            importances = model.estimators_[i].feature_importances_
+            feature_importances[target] = dict(zip(X.columns, importances))
+            for feature, importance in zip(X.columns, importances):
+                overall_feature_importances[feature] += importance
+
+        # Average the feature importances by dividing by the number of targets
+        num_targets = len(y.columns)
+        for feature in overall_feature_importances:
+            overall_feature_importances[feature] /= num_targets
+
+        # Display feature importances for each target (product)
+        st.subheader("Feature Importances for Each Product")
+        individual_feature_importance_df = pd.DataFrame(individual_feature_importance_list)
+        st.write(individual_feature_importance_df)
+
+        # Display overall feature importances
+        st.subheader("Overall Feature Importance")
+        sorted_overall_importances = sorted(overall_feature_importances.items(), key=lambda x: x[1], reverse=True)
+        overall_feature_importance_df = pd.DataFrame(sorted_overall_importances, columns=["Feature", "Importance"])
+        st.write(overall_feature_importance_df)
+
+    else:
+        st.error("Cleaned data is not available. Please run the Data Cleaning page first.")
 
 # Conclusions Page
 elif st.session_state.page_selection == "conclusion":
