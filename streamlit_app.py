@@ -456,7 +456,41 @@ elif st.session_state.page_selection == "prediction":
         plt.title('Overall Feature Importance')
         st.pyplot(plt)
 
-        
+        if 'X_test' in st.session_state:
+            X_test = st.session_state.X_test  # Access X_test from session state
+        else:
+            st.error("X_test is not available. Please load the data first.")
+            X_test = None
+
+        if X_test is not None:
+            # Decode the 'Marital_Status' columns (one-hot encoded to categorical)
+            marital_status_columns = ['Marital_Status_YOLO', 'Marital_Status_Together', 'Marital_Status_Married', 'Marital_Status_Widow', 
+                              'Marital_Status_Divorced', 'Marital_Status_Alone', 'Marital_Status_Single']
+            education_columns = ['Education_PhD', 'Education_Master', 'Education_Graduation', 'Education_Basic']
+    
+            # Check if all the necessary columns exist in X_test
+            if all(col in X_test.columns for col in marital_status_columns):
+                X_test['Marital_Status'] = X_test[marital_status_columns].idxmax(axis=1).str.replace('Marital_Status_', '')
+                st.write("Successfully decoded 'Marital_Status' columns!")
+            else:
+                st.error("Some 'Marital_Status' columns are missing in X_test.")
+    
+            if all(col in X_test.columns for col in education_columns):
+                X_test['Education'] = X_test[education_columns].idxmax(axis=1).str.replace('Education_', '')
+                st.write("Successfully decoded 'Education' columns!")
+            else:
+                st.error("Some 'Education' columns are missing in X_test.")
+    
+            # Drop the one-hot encoded columns
+            columns_to_drop = marital_status_columns + education_columns
+            X_test = X_test.drop(columns=columns_to_drop, axis=1)
+
+            # Display the updated DataFrame
+            st.write("Updated X_test DataFrame:")
+            st.dataframe(X_test.head())  # Display the first few rows for preview
+
+        else:
+            st.error("X_test DataFrame is not available.")
 # Conclusions Page
 elif st.session_state.page_selection == "conclusion":
     st.header("📝 Conclusion")
