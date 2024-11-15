@@ -347,6 +347,15 @@ elif st.session_state.page_selection == "machine_learning":
         st.subheader("Cluster Summary")
         st.write(cluster_summary)
 
+        # Decode the columns back to their original labels
+        kmeans_pd['Year_Birth'] = label_encoders['Year_Birth'].inverse_transform(kmeans_pd['Year_Birth'])
+        kmeans_pd['Marital_Status'] = label_encoders['Marital_Status'].inverse_transform(kmeans_pd['Marital_Status'])
+        kmeans_pd['Education'] = label_encoders['Education'].inverse_transform(kmeans_pd['Education'])
+        kmeans_pd['Dt_Customer'] = label_encoders['Dt_Customer'].inverse_transform(kmeans_pd['Dt_Customer'])
+        
+        # Show the decoded DataFrame
+        st.write(kmeans_pd)
+
         # Visualize the clusters in a bar chart showing average spending per product by cluster
         pivot_cluster = cluster_summary.melt(id_vars="Income",
                                              value_vars=['MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 
@@ -412,7 +421,6 @@ elif st.session_state.page_selection == "machine_learning":
         st.error("K-means cannot run because the data is missing. Please check the data cleaning page.")
 
 # Prediction Page
-# Prediction Page
 elif st.session_state.page_selection == "prediction":
     st.header("👀 Prediction")
 
@@ -450,13 +458,6 @@ elif st.session_state.page_selection == "prediction":
         cluster_summary = kmeans_pd.groupby('Cluster').mean()
         st.subheader("Cluster Summary")
         st.write(cluster_summary)
-
-        # Reverse label encoding for readability
-        kmeans_pd['Year_Birth'] = label_encoders['Year_Birth'].inverse_transform(kmeans_pd['Year_Birth'])
-        kmeans_pd['Marital_Status'] = label_encoders['Marital_Status'].inverse_transform(kmeans_pd['Marital_Status'])
-        kmeans_pd['Education'] = label_encoders['Education'].inverse_transform(kmeans_pd['Education'])
-        kmeans_pd['Dt_Customer'] = label_encoders['Dt_Customer'].inverse_transform(kmeans_pd['Dt_Customer'])
-        st.write(kmeans_pd)
 
         # Visualizing cluster summary with average spending
         pivot_cluster = cluster_summary.melt(id_vars="Income", 
