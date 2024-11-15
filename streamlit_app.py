@@ -175,7 +175,6 @@ elif st.session_state.page_selection == "eda":
     
     if clean_pd is not None:
             st.markdown('#### Correlation Heatmap')
-
            
             required_columns = ['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
             if all(col in clean_pd.columns for col in required_columns):
@@ -211,10 +210,8 @@ elif st.session_state.page_selection == "eda":
                 st.pyplot()
             else:
                 st.warning("Missing product sales data for total sales bar chart!")
-
-       
-        st.markdown('#### Graphs Column 3')
-        clean_pd = st.session_state.get('clean_pd', None)
+            st.markdown('#### Graphs Column 3')
+            clean_pd = st.session_state.get('clean_pd', None)
        
 # Machine Learning Page
 elif st.session_state.page_selection == "machine_learning":
