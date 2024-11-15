@@ -207,7 +207,6 @@ elif st.session_state.page_selection == "eda":
                 })
 
                 prodsales_pivot = prodsales_pd.melt(var_name="Product", value_name="TotalSales")
-                st.write(prodsales_pivot)
 
                 plt.figure(figsize=(10, 6))
                 sns.barplot(x='Product', y='TotalSales', data=prodsales_pivot, palette='viridis')
