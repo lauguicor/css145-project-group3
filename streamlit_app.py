@@ -355,3 +355,4 @@ elif st.session_state.page_selection == "prediction":
 # Conclusions Page
 elif st.session_state.page_selection == "conclusion":
     st.header("📝 Conclusion")
+    st.markdown("""This is the content area""")
