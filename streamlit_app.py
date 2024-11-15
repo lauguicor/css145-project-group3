@@ -168,13 +168,15 @@ elif st.session_state.page_selection == "data_cleaning":
     st.write(clean_pd.dtypes)
     
     st.session_state.clean_pd = clean_pd
+    
 # EDA Page
 elif st.session_state.page_selection == "eda":
     st.header("📈 Exploratory Data Analysis (EDA)")
 
-    col = st.columns((1.5, 4.5, 2), gap='medium')
+    col = st.columns((3, 4, 3), gap='medium')
 
-    clean_pd = st.session_state.get('clean_pd', None)
+    clean_pd = st.session_state.get('clean_pd')
+    
     with col[0]:
         if clean_pd is not None:
             st.markdown('#### Correlation Heatmap')
