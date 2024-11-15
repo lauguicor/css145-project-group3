@@ -173,7 +173,6 @@ elif st.session_state.page_selection == "eda":
 
     clean_pd = st.session_state.get('clean_pd', None)
     
-    if clean_pd is not None:
     st.markdown('#### Correlation Heatmap')
            
     required_columns = ['Income', 'MntWines', 'MntFruits', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds']
