@@ -438,12 +438,11 @@ elif st.session_state.page_selection == "prediction":
                 individual_feature_importance_list.append({"Target": target, "Feature": feature, "Importance": importance})
 
         individual_feature_importance_df = pd.DataFrame(individual_feature_importance_list)
-        display(individual_feature_importance_df)
+        st.dataframe(individual_feature_importance_df)
 
         sorted_overall_importances = sorted(overall_feature_importances.items(), key=lambda x: x[1], reverse=True)
         overall_feature_importance_df = pd.DataFrame(sorted_overall_importances, columns=["Feature", "Importance"])
-
-        display(overall_feature_importance_df)
+        st.dataframe(overall_feature_importance_df)
         
 
 # Conclusions Page
